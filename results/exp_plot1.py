@@ -52,6 +52,6 @@ for index, ce in enumerate(celists):
     ax.bar_label(p1, label_type='center', fmt='%d%%')
     # ax.bar_label(p2, label_type='center')
     fig.tight_layout()
-
-    plt.savefig(f"results/{names[index]}-Fineness.pdf", dpi=150)
-    plt.show()
+    print(names[index], CorrectRate)
+    # plt.savefig(f"results/{names[index]}-Fineness.pdf", dpi=150)
+    # plt.show()
