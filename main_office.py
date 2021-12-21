@@ -20,10 +20,10 @@ import argparse
 parser = argparse.ArgumentParser(description='Training code - ATC - office home')
 # parser.add_argument('--root_path', default='/Volumes/Jiang/DA_dataset/')
 parser.add_argument('--root_path', type=str, default='data', help='dataset root')
-parser.add_argument('--dataset', type=str, default='OfficeHome', help='dataset name')
-parser.add_argument('--source', default='Art', help='Art | Clipart | Product | Real_World')
-parser.add_argument('--target', default='Clipart', help='Art | Clipart | Product | Real_World')
-parser.add_argument('--patience', type=int, default=5, help='patience')
+parser.add_argument('--dataset', type=str, default='Office31', help='dataset name')
+parser.add_argument('--source', default='amazon', help='amazon, dslr, webcam')
+parser.add_argument('--target', default='dslr', help='amazon, dslr, webcam')
+parser.add_argument('--patience', type=int, default=10, help='patience')
 args = parser.parse_args()
 
 args.output_dir = f'{args.dataset}-{args.source}-{args.target}'
@@ -48,11 +48,11 @@ logger.addHandler(ch)
 args.logger = logger
 
 savepath = '.'
-n = 20
-m = 65-20
-c_n = 8
-s_n = 10
-m_n = 8
+n = 10
+m = 10
+c_n = 4
+s_n = 5
+m_n = 4
 batch_size = 32
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -66,7 +66,7 @@ test_transform = transforms.Compose(
             [transforms.Resize([224, 224]),
             transforms.ToTensor()])
 
-class_name_alllist = os.listdir(os.path.join(args.root_path, 'OfficeHome', args.source))
+class_name_alllist = os.listdir(os.path.join(args.root_path, 'Office31', args.source, 'images'))
 class_name_alllist.sort()
 
 SemisupPath = os.path.join(args.root_path, f'Semisup-{args.source}-{args.target}')
@@ -78,10 +78,10 @@ os.makedirs(os.path.join(SemisupPath, args.source))
 os.makedirs(os.path.join(SemisupPath, args.target))
 
 for clsname in class_name_alllist[:n]:
-  shutil.copytree(os.path.join(args.root_path, 'OfficeHome', args.source, clsname), os.path.join(SemisupPath, args.source, clsname))
+  shutil.copytree(os.path.join(args.root_path, 'Office31', args.source, 'images', clsname), os.path.join(SemisupPath, args.source, clsname))
 
 for clsname in (class_name_alllist[:n]+class_name_alllist[-m:]):
-  shutil.copytree(os.path.join(args.root_path, 'OfficeHome', args.target, clsname), os.path.join(SemisupPath, args.target, clsname))
+  shutil.copytree(os.path.join(args.root_path, 'Office31', args.target, 'images', clsname), os.path.join(SemisupPath, args.target, clsname))
 
 class ATC:
     def __init__(self) -> None:
@@ -207,8 +207,6 @@ class ATC:
         self.S_sample = self.target_features_array[np.array(self.target_uncertainty_list) >= mean_u]
         self.S_id = np.array(self.target_dataset.id)[np.array(self.target_uncertainty_list) >= mean_u]
         self.S_label = np.array(self.target_dataset.label)[np.array(self.target_uncertainty_list) >= mean_u]
-        if self.S_sample.shape == 0:
-            return True
 
         # 对数据解包的匿名函数 [[[距离 - ID - 特征]]] -> [ID - Label]
         # self.unpack_set_id_label = lambda x:[(self.S_id[int(_[0][1])], self.S_label[int(_[0][1])]) \
@@ -218,7 +216,8 @@ class ATC:
         self.unpack_list_id_label = lambda x:[([_[0] for _ in self.unpack_set_id_label(x_)], \
             [_[1] for _ in self.unpack_set_id_label(x_)]) for x_ in [x]][0]
         self.pack_dict_id_label = lambda x:[dict(zip(map(lambda x:str(x), self.unpack_list_id_label(x_)[0]), self.unpack_list_id_label(x_)[1])) for x_ in [x]][0]
-
+        if self.S_sample.shape == 0:
+            return True
         # 显示内外分布的柱状图
         if Visio:
             fig, ax = plt.subplots()
@@ -506,26 +505,35 @@ class ATC:
 if __name__ == '__main__':
     args.logger.info(args)
 
-    A = ATC()
-    A.progress.append([])
-    A.DSANTrain(nepoch = 50)
     while True:
+        A = ATC()
         A.progress.append([])
-        A.fineTrain(epochnum = 60)
-        if A.uncertaintySample(Visio = True):
-            break
-        if A.clustersSample(Visio = True):
-            break
+        A.DSANTrain(nepoch = 50)
+        while True:
+            A.progress.append([])
+            A.fineTrain(epochnum = 60)
+            if A.uncertaintySample(Visio = True):
+                break
+            if A.clustersSample(Visio = True):
+                break
+            A.UpdateSource()
+            A.UpdateModel()
+            A.DSANTrain(nepoch = 50)
+            for _ in A.progress:
+                args.logger.info(_)
+        A.Ssd = dict(A.Ssd, **A.Sub)
+        A.nl = list(set(A.nl) | set(A.Ssd.values()))
         A.UpdateSource()
         A.UpdateModel()
         A.DSANTrain(nepoch = 50)
         for _ in A.progress:
             args.logger.info(_)
-    A.Ssd = dict(A.Ssd, **A.Sub)
-    A.nl = list(set(A.nl) | set(A.Ssd.values()))
-    A.UpdateSource()
-    A.UpdateModel()
-    A.DSANTrain(nepoch = 50)
-    for _ in A.progress:
-        args.logger.info(_)
-    
+        
+        if A.progress[-1][0] == n + m:
+            break
+        else:
+            for file in os.listdir(args.output_dir):
+                if file.endswith('.pdf'):
+                    os.remove(os.path.join(args.output_dir, file))
+                if file.endswith('.svg'):
+                    os.remove(os.path.join(args.output_dir, file))
