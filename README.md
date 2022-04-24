@@ -37,6 +37,8 @@ python main.py [-source source] [-target target]  [-c_n c_n] [-s_n s_n] [-m_n m_
 -s_n | Number of samples per unknown cluster 
 -m_n | Minimum transfer quantity             
 
+About the comparison algorithm, you can use it [here](https://github.com/ceroo1005/DATL/tree/main/methods).
+
 # Example Results
 Here we give the relevant experimental information.
 
