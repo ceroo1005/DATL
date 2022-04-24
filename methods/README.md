@@ -31,7 +31,8 @@ python 2smi.py [--root root] [--dataset dataset]  [--source source] [--target ta
  --method  | ResNet
 
 You can change ```--method``` parameters to decide which comparison methods to use.
-```--method``` support the following options:'DAN'|'DDC'|'DANN'|'ResNet'.
+```--method``` support the following options:`DAN`|`DDC`|`DANN`|`ResNet`.
+
 
 
 
