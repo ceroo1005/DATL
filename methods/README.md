@@ -15,6 +15,7 @@ python 1copyfile.py [--root root] [--save save]  [--smi-sample-rate 0.1] [--test
 --save | /data/smisup
 --smi-sample-rate | 0.1
 --test-only | False
+
 Use the parameter ```-test-only``` to sample on only one migration task (Office31 has six transfer tasks).
 
 2. To run semi-supervised learning, you can use the following command
@@ -28,6 +29,7 @@ python 2smi.py [--root root] [--dataset dataset]  [--source source] [--target ta
  --source  | webcam                 
  --target  | dslr                   
  --method  | ResNet
+
 You can change ```--method``` parameters to decide which comparison methods to use.
 ```--method``` support the following options:'DAN'|'DDC'|'DANN'|'ResNet'.
 
