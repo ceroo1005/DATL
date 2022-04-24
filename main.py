@@ -19,10 +19,13 @@ from collections import Counter
 import argparse
 parser = argparse.ArgumentParser(description='Training code - ATC - office home')
 # parser.add_argument('--root_path', default='/Volumes/Jiang/DA_dataset/')
-parser.add_argument('--root_path', type=str, default='data', help='dataset root')
-parser.add_argument('--dataset', type=str, default='Office31', help='dataset name')
+parser.add_argument('--root_path', type=str, default='/data', help='dataset root')
+parser.add_argument('--dataset', type=str, default='office31', help='dataset name')
 parser.add_argument('--source', default='amazon', help='amazon, dslr, webcam')
 parser.add_argument('--target', default='dslr', help='amazon, dslr, webcam')
+parser.add_argument('--c_n', default=4, type=int, help='number of cluster classes')
+parser.add_argument('--s_n', default=5, type=int, help='number of samples per unknown cluster ')
+parser.add_argument('--batch_size', type=int, default=32)
 parser.add_argument('--patience', type=int, default=10, help='patience')
 args = parser.parse_args()
 
@@ -50,10 +53,10 @@ args.logger = logger
 savepath = '.'
 n = 10
 m = 10
-c_n = 4
-s_n = 5
+c_n = args.c_n
+s_n = args.s_n
 m_n = 4
-batch_size = 32
+batch_size = args.batch_size
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 train_transform = transforms.Compose(
@@ -66,7 +69,7 @@ test_transform = transforms.Compose(
             [transforms.Resize([224, 224]),
             transforms.ToTensor()])
 
-class_name_alllist = os.listdir(os.path.join(args.root_path, 'Office31', args.source, 'images'))
+class_name_alllist = os.listdir(os.path.join(args.root_path, 'office31', args.source, 'images'))
 class_name_alllist.sort()
 
 SemisupPath = os.path.join(args.root_path, f'Semisup-{args.source}-{args.target}')
@@ -78,10 +81,10 @@ os.makedirs(os.path.join(SemisupPath, args.source))
 os.makedirs(os.path.join(SemisupPath, args.target))
 
 for clsname in class_name_alllist[:n]:
-  shutil.copytree(os.path.join(args.root_path, 'Office31', args.source, 'images', clsname), os.path.join(SemisupPath, args.source, clsname))
+  shutil.copytree(os.path.join(args.root_path, 'office31', args.source, 'images', clsname), os.path.join(SemisupPath, args.source, clsname))
 
 for clsname in (class_name_alllist[:n]+class_name_alllist[-m:]):
-  shutil.copytree(os.path.join(args.root_path, 'Office31', args.target, 'images', clsname), os.path.join(SemisupPath, args.target, clsname))
+  shutil.copytree(os.path.join(args.root_path, 'office31', args.target, 'images', clsname), os.path.join(SemisupPath, args.target, clsname))
 
 class ATC:
     def __init__(self) -> None:

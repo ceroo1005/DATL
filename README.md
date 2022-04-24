@@ -26,16 +26,15 @@ First you should download the Office-31 dataset using:
 
 To run DATL model, use the following commands and arguments
 ```
-python main.py [-source source] [-target target]  [-c_n c_n] [-s_n s_n] [-m_n m_n]
+python main.py [--source source] [--target target] [--c_n c_n] [--s_n s_n]
 ```
 
 | Argument | Description                           
 | :--- |:--------------------------------------
--source| dslr / webcam / amazon                
--target | dslr / webcam / amazon
--c_n | Number of cluster classes             
--s_n | Number of samples per unknown cluster 
--m_n | Minimum transfer quantity             
+--source| dslr / webcam / amazon                
+--target | dslr / webcam / amazon
+--c_n | Number of cluster classes             
+--s_n | Number of samples per unknown cluster 
 
 About the comparison algorithm, you can use it [here](https://github.com/ceroo1005/DATL/tree/main/methods).
 
