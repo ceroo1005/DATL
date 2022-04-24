@@ -8,7 +8,9 @@
 ![](img/AlgorithmFlow.png)
 
 
-This is a PyTorch library for DATL. DATL is a new OSDA method. We find that the previous OSDA methods can not solve the problem of unknown sample classification. To solve this problem, we introduce uncertainty detection and active learning into domain adaptation. We find that uncertainty detection can extract unknown samples, and active learning can sample important examples from unknown samples. In short, DATL with active learning might be a more promising direction for OSDA.
+This is a PyTorch library for DATL. DATL is a new OSDA method. We find that the previous OSDA methods can not solve the problem of unknown sample classification. 
+To solve this problem, we introduce uncertainty detection and active learning into domain adaptation. We find that uncertainty detection can extract unknown samples, and active learning can sample important examples from unknown samples. 
+In short, DATL with active learning might be a more promising direction for OSDA.
 
 
 ## Dataset
@@ -27,13 +29,13 @@ To run DATL model, use the following commands and arguments
 python main.py [-source source] [-target target]  [-c_n c_n] [-s_n s_n] [-m_n m_n]
 ```
 
-| Argument | Description
-| :--- | :----------
--source| dslr | webcam | amazon
--target | dslr | webcam | amazon
--c_n | Number of cluster classes
--s_n | Number of samples per unknown cluster
--m_n | Minimum transfer quantity
+| Argument | Description                           
+| :--- |:--------------------------------------
+-source| dslr / webcam / amazon                
+-target | dslr / webcam / amazon
+-c_n | Number of cluster classes             
+-s_n | Number of samples per unknown cluster 
+-m_n | Minimum transfer quantity             
 
 # Example Results
 Here we give the relevant experimental information.
